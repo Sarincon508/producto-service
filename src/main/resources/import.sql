@@ -1,20 +1,3 @@
-CREATE TABLE IF NOT EXISTS producto (
-  id BIGSERIAL PRIMARY KEY,
-  nombre VARCHAR(255) NOT NULL,
-  descripcion TEXT,
-  precio NUMERIC(12,2) NOT NULL,
-  stock INTEGER NOT NULL,
-  foto VARCHAR(512)
-);
-
-CREATE TABLE IF NOT EXISTS carro (
-  id BIGSERIAL PRIMARY KEY,
-  nombre VARCHAR(255) NOT NULL,
-  descripcion TEXT,
-  precio NUMERIC(12,2) NOT NULL,
-  stock INTEGER NOT NULL,
-  foto VARCHAR(512)
-);
 
 INSERT INTO producto (nombre, descripcion, precio, stock, foto) VALUES ('Producto 1', 'Descripcion 1', 100, 2, 'foto1.jpg');
 INSERT INTO producto (nombre, descripcion, precio, stock, foto) VALUES ('Producto 2', 'Descripcion 2', 200, 4, 'foto2.jpg');
