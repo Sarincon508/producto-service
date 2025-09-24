@@ -1,8 +1,7 @@
+// java
 package co.empresa.productoservice.delivery.exception;
 
-
 import co.empresa.productoservice.domain.exception.*;
-import co.empresa.productoservice.domain.model.Producto;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,9 +20,18 @@ public class GlobalExceptionHandler {
     private static final String PRODUCTO = "producto";
     private static final String PRODUCTOS = "productos";
     private static final String STATUS = "status";
+    private static final String CARRO = "carro";
+    private static final String CARROS = "carros";
 
     @ExceptionHandler(PaginaSinProductosException.class)
     public ResponseEntity<Map<String, Object>> handlePaginaSinProductos(PaginaSinProductosException ex) {
+        Map<String, Object> response = new HashMap<>();
+        response.put(MENSAJE, ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
+    @ExceptionHandler(PaginaSinCarrosException.class)
+    public ResponseEntity<Map<String, Object>> handlePaginaSinCarros(PaginaSinCarrosException ex) {
         Map<String, Object> response = new HashMap<>();
         response.put(MENSAJE, ex.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
@@ -40,8 +48,16 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String, Object>> handleNoHayProductos(NoHayProductosException ex) {
         Map<String, Object> response = new HashMap<>();
         response.put(MENSAJE, "No hay productos en la base de datos.");
-        response.put(PRODUCTOS, null); // para que sea siempre el mismo campo
-        return ResponseEntity.status(HttpStatus.OK).body(response); // 200 pero lista vacía
+        response.put(PRODUCTOS, null);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @ExceptionHandler(NoHayCarrosException.class)
+    public ResponseEntity<Map<String, Object>> handleNoHayCarros(NoHayCarrosException ex) {
+        Map<String, Object> response = new HashMap<>();
+        response.put(MENSAJE, "No hay carros en la base de datos.");
+        response.put(CARROS, null);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @ExceptionHandler(ProductoNoEncontradoException.class)
@@ -52,8 +68,24 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
+    @ExceptionHandler(CarroNoEncontradoException.class)
+    public ResponseEntity<Map<String, Object>> handleCarroNoEncontrado(CarroNoEncontradoException ex) {
+        Map<String, Object> response = new HashMap<>();
+        response.put(ERROR, ex.getMessage());
+        response.put(STATUS, HttpStatus.NOT_FOUND.value());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
     @ExceptionHandler(ProductoExistenteException.class)
     public ResponseEntity<Map<String, Object>> handleProductoExistente(ProductoExistenteException ex) {
+        Map<String, Object> response = new HashMap<>();
+        response.put(ERROR, ex.getMessage());
+        response.put(STATUS, HttpStatus.BAD_REQUEST.value());
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(CarroExistenteException.class)
+    public ResponseEntity<Map<String, Object>> handleCarroExistente(CarroExistenteException ex) {
         Map<String, Object> response = new HashMap<>();
         response.put(ERROR, ex.getMessage());
         response.put(STATUS, HttpStatus.BAD_REQUEST.value());
@@ -72,7 +104,8 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String, Object>> handleDataAccessException(DataAccessException ex) {
         Map<String, Object> response = new HashMap<>();
         response.put(MENSAJE, "Error al consultar la base de datos.");
-        response.put(ERROR, ex.getMessage().concat(": ").concat(ex.getMostSpecificCause().getMessage()));
+        response.put(ERROR, ex.getMessage().concat(": ").concat(
+                ex.getMostSpecificCause() != null ? ex.getMostSpecificCause().getMessage() : ""));
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
 
@@ -80,7 +113,6 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String, Object>> handleValidationException(ValidationException ex) {
         Map<String, Object> response = new HashMap<>();
         response.put(MENSAJE, ex.getMessage());
-        response.put(ERROR, ex.getMessage());
 
         List<String> errors = ex.result.getFieldErrors()
                 .stream()
@@ -89,6 +121,5 @@ public class GlobalExceptionHandler {
 
         response.put(ERROR, errors);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-
     }
 }
